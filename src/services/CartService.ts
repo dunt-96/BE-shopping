@@ -24,6 +24,62 @@ const createCart = (newCart) => {
     })
 }
 
+const getAllItemInCart = (limit = 100, page = 0, sort, sortBy: string = 'name', filter) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const totalItems = await CartModel.countDocuments();
+            const data = await CartModel.find().limit(limit).skip(page * limit).sort({
+                [sortBy]: sort ?? 'asc'
+            });
+
+            if (filter) {
+                const labelFilter = filter[0];
+                const totalProdWithType = await CartModel.find({ [labelFilter]: { '$regex': filter[1] } });
+                const allObjectFilter = await CartModel.find({ [labelFilter]: { '$regex': filter[1] } }).limit(limit).skip(page * limit);
+                resolve({
+                    status: "OK",
+                    message: "SUCCESS",
+                    data: allObjectFilter,
+                    total: totalProdWithType.length,
+                    pageCurrent: Number(page) + 1,
+                    totalPage: Math.ceil(totalItems / limit)
+                })
+            }
+
+            if (sort) {
+                const objectSort = {};
+                objectSort[sort[1]] = sort[0];
+                const allProductSort = await CartModel.find().limit(limit).skip(page * limit).sort(objectSort);
+
+                resolve({
+                    status: "OK",
+                    message: "SUCCESS",
+                    data: allProductSort,
+                    total: totalItems,
+                    pageCurrent: Number(page) + 1,
+                    totalPage: Math.ceil(totalItems / limit)
+                })
+            }
+            // const sortObj = {
+
+            // };
+            // sortObj[sortBy] = sort;
+            // console.log('sort prod', sortObj);
+            const allProduct = await CartModel.find().limit(limit).skip(page * limit);
+            resolve({
+                status: "OK",
+                message: "SUCCESS",
+                data: allProduct,
+                total: totalItems,
+                pageCurrent: Number(page) + 1,
+                totalPage: Math.ceil(totalItems / limit)
+            })
+        } catch (error) {
+        }
+    });
+}
+
 export default {
-    createCart
+    createCart,
+    getAllItemInCart
 }
