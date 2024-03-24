@@ -29,8 +29,20 @@ const deleteItemInCart = async (req, res) => {
     }
 }
 
+const deleteManyItemsInCart = async (req, res) => {
+    try {
+        const ids = req.body;
+        console.log('delete many item in cart', ids);
+        const result = await CartService.deleteManyItemsInCart(ids);
+        return res.status(200).json(result);
+    } catch (error) {
+        res.status(200).json(error);
+    }
+}
+
 export default {
     createCart,
     getAllItemInCart,
-    deleteItemInCart
+    deleteItemInCart,
+    deleteManyItemsInCart
 }

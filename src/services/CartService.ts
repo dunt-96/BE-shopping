@@ -82,7 +82,6 @@ const getAllItemInCart = (limit = 100, page = 0, sort, sortBy: string = 'name', 
 const deleteIemInCart = (productId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log('prod id', productId);
             const checkProd = await CartModel.find({
                 product: productId
             });
@@ -112,8 +111,37 @@ const deleteIemInCart = (productId) => {
     });
 }
 
+const deleteManyItemsInCart = (ids) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log('prod id', ids);
+            const res = await CartModel.deleteMany({
+                product: ids
+            })
+
+            if (res) {
+                return resolve({
+                    status: "OK",
+                    message: "Xoá tất cả sản phẩm thành công",
+                })
+            }
+
+
+            return resolve({
+                status: "ERR",
+                message: 'Xoá tất cả sản phẩm thất bại'
+            })
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+
+
 export default {
     createCart,
     getAllItemInCart,
-    deleteIemInCart
+    deleteIemInCart,
+    deleteManyItemsInCart
 }
