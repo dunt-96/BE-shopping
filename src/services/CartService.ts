@@ -79,7 +79,41 @@ const getAllItemInCart = (limit = 100, page = 0, sort, sortBy: string = 'name', 
     });
 }
 
+const deleteIemInCart = (productId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log('prod id', productId);
+            const checkProd = await CartModel.find({
+                product: productId
+            });
+            if (!checkProd) {
+                return resolve({
+                    status: "ERR",
+                    message: "Product is not exist",
+                });
+            }
+            const deleteProd = await CartModel.findOneAndDelete({
+                product: productId
+            });
+            if (deleteProd) {
+                return resolve({
+                    status: "OK",
+                    message: 'Xoá sản phẩm thành công'
+                })
+            }
+
+            return resolve({
+                status: "ERR",
+                message: 'Xoá sản phẩm thất bại'
+            })
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
 export default {
     createCart,
-    getAllItemInCart
+    getAllItemInCart,
+    deleteIemInCart
 }

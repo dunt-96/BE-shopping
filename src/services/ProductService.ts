@@ -73,8 +73,6 @@ export const deleteProductService = (prodId) => {
 
             const deleteProd = await Product.findOneAndDelete(prodId);
 
-            console.log('delete', deleteProd);
-
             // if (deleteUser.deletedCount == 0) {
             //     return resolve({
             //         status: "FAIL",

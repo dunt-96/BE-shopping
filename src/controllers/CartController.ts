@@ -19,7 +19,18 @@ const getAllItemInCart = async (req, res) => {
     }
 }
 
+const deleteItemInCart = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const result = await CartService.deleteIemInCart(productId);
+        return res.status(200).json(result);
+    } catch (error) {
+        res.status(200).json(error);
+    }
+}
+
 export default {
     createCart,
-    getAllItemInCart
+    getAllItemInCart,
+    deleteItemInCart
 }
