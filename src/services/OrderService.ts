@@ -1,3 +1,4 @@
+import CartModel from "../models/CartModel";
 import OrderModel from "../models/OrderModel";
 
 const createOrder = (newOrder) => {
@@ -23,6 +24,18 @@ const createOrder = (newOrder) => {
             console.log('createOrder', createOrder);
 
             if (createOrder) {
+                const listIds = orderItems.map((item) => item.product);
+                const deleteItemsFromCart = await CartModel.deleteMany({
+                    product: listIds
+                })
+
+                if (!deleteItemsFromCart) {
+                    return resolve({
+                        status: "ERR",
+                        message: "Đặt hàng thất bại"
+                    })
+                }
+
                 return resolve({
                     status: 'OK',
                     message: 'SUCCESS',

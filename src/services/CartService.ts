@@ -137,11 +137,61 @@ const deleteManyItemsInCart = (ids) => {
     });
 }
 
+const updateItemInCart = (item) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const checkIsExistItem = await CartModel.find({
+                product: item.product
+            });
 
+            if (!checkIsExistItem) {
+                return resolve({
+                    status: "ERR",
+                    message: "Cập nhật sản phẩm thất bại"
+                })
+            }
+
+            const update = await CartModel.findOneAndUpdate({
+                product: item.product
+            }, item);
+
+            if (!update) {
+                return resolve({
+                    status: "ERR",
+                    message: "Cập nhật sản phẩm thất bại"
+                });
+            }
+
+            return resolve({
+                status: "OK",
+                message: "Cập nhật sản phẩm thành công"
+            });
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
+
+const countItemInCart = () => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const countItemInCart = await CartModel.countDocuments();
+            return resolve({
+                status: "OK",
+                message: "Success",
+                data: countItemInCart
+            })
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
 
 export default {
     createCart,
     getAllItemInCart,
     deleteIemInCart,
-    deleteManyItemsInCart
+    deleteManyItemsInCart,
+    updateItemInCart,
+    countItemInCart
 }
