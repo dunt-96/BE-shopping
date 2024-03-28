@@ -142,7 +142,8 @@ const getDetail = async (req, res) => {
 
 const refreshToken = async (req, res) => {
     try {
-        const token = req.cookies.refresh_token;
+        // const token = req.cookies.refresh_token;
+        const token = req.headers.token.split(' ')[1];
         console.log('refresh_token123', token);
         if (!token) {
             return res.status(200).json({
