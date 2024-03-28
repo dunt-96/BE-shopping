@@ -10,7 +10,6 @@ const createOrder = async (req, res) => {
             });
         }
         const newOrder = req.body;
-        console.log('newOrder', newOrder);
         const result = await OrderService.createOrder(newOrder);
         return res.status(200).json(result);
     } catch (error) {

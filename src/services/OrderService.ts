@@ -1,15 +1,67 @@
 import CartModel from "../models/CartModel";
 import OrderModel from "../models/OrderModel";
+import Product from "../models/ProductModel";
 
 const createOrder = (newOrder) => {
     return new Promise(async (resolve, reject) => {
         try {
+
             const { orderItems } = newOrder;
+
             const shippingAddress = {
                 fullName: newOrder.fullName,
                 address: newOrder.address,
                 city: newOrder.city,
                 phone: newOrder.phone
+            }
+
+            let orderItemsChecked = [];
+
+            const promises = orderItems.map(async (order) => {
+                const productData = await Product.findOneAndUpdate(
+                    {
+                        _id: order.product,
+                        countInStock: { $gte: order.amount }
+                    },
+                    {
+                        $inc: {
+                            countInStock: -order.amount,
+                            selled: +order.amount
+                        }
+                    },
+                    {
+                        new: true,
+                    }
+                );
+
+                if (productData) {
+                    return ({
+                        status: 'OK',
+                        message: 'UPDATE SUCCESS',
+                        data: order
+                    })
+                } else {
+                    return ({
+                        status: 'ERR',
+                        message: 'UPDATE FAIL',
+                        data: order,
+                    })
+                }
+            })
+
+            // console.log('list order checked', orderItemsChecked);
+
+            const results = await Promise.all(promises);
+            console.log('results', results);
+
+            for (let index = 0; index < results.length; index++) {
+                if (results[index].status === "ERR") {
+                    return resolve({
+                        status: "ERR",
+                        message: "UPDATE FAIL",
+                        data: results
+                    });
+                }
             }
 
             const createOrder = await OrderModel.create({
@@ -21,19 +73,18 @@ const createOrder = (newOrder) => {
                 totalPrice: newOrder.totalPrice,
                 user: newOrder.user,
             });
-            console.log('createOrder', createOrder);
 
             if (createOrder) {
-                const listIds = orderItems.map((item) => item.product);
-                const deleteItemsFromCart = await CartModel.deleteMany({
+                const listIds = orderItemsChecked.map((item) => item.product);
+                const deleteItem = await CartModel.deleteMany({
                     product: listIds
                 })
 
-                if (!deleteItemsFromCart) {
-                    return resolve({
+                if (!deleteItem) {
+                    return {
                         status: "ERR",
                         message: "Đặt hàng thất bại"
-                    })
+                    }
                 }
 
                 return resolve({
@@ -43,7 +94,6 @@ const createOrder = (newOrder) => {
                 })
             }
         } catch (error) {
-            reject({ error });
         }
     })
 }
